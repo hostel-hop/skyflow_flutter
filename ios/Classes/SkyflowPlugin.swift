@@ -4,7 +4,8 @@ import Skyflow
 
 extension FlutterError: Error {}
 
-public class SkyflowPlugin: NSObject, FlutterPlugin {
+@objc(SkyflowPlugin)
+class SkyflowPlugin: NSObject, FlutterPlugin {
     private var channel: FlutterMethodChannel
     private var skyflow: Skyflow.Client?
     

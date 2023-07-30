@@ -1,6 +1,6 @@
 import 'package:flutter/services.dart';
 
-class SkyflowChannel {
+class Skyflow {
   final MethodChannel _channel = const MethodChannel('flutter.skyflow"');
 
   Future<void> initialize({
