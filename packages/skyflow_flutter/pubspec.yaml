@@ -1,6 +1,6 @@
 name: skyflow_flutter
-description: Flutter library for Stripe. Supports PaymentSheets, Apple & Google Pay, SCA, PSD2 and much more.
-version: 9.2.2
+description: Flutter library for Skyflow. Supports PaymentSheets, Apple & Google Pay, SCA, PSD2 and much more.
+version: 0.0.9
 homepage: https://github.com/hostel-hop/skyflow_flutter
 repository: https://github.com/hostel-hop/skyflow_flutter
 
@@ -18,8 +18,8 @@ dependencies:
   flutter:
     sdk: flutter
   meta: ^1.8.0
-  skyflow_ios: ^0.0.1
-  skyflow_platform_interface: ^0.0.1
+  skyflow_ios: ^0.0.2
+  skyflow_platform_interface: ^9.2.2
 dev_dependencies:
   flutter_test:
     sdk: flutter

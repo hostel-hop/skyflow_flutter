@@ -45,6 +45,25 @@ class SkyflowPlugin: NSObject, FlutterPlugin {
                                             message: "Invalid arguments",
                                              details: nil))
             }
+            
+            guard params["vaultID"] != nil else {
+                return result(FlutterError.init(code: "BAD_ARGS",
+                                            message: "Invalid arguments",
+                                             details: nil))
+            }
+
+            guard params["vaultURL"] != nil else {
+                return result(FlutterError.init(code: "BAD_ARGS",
+                                            message: "Invalid arguments",
+                                             details: nil))
+            }
+
+            guard params["tokenProviderURL"] != nil else {
+                return result(FlutterError.init(code: "BAD_ARGS",
+                                            message: "Invalid arguments",
+                                             details: nil))
+            }
+            
 
             let demoTokenProvider = DemoTokenProvider(
                 tokenEndpoint: params["tokenProviderURL"] as! String, 
