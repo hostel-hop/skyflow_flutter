@@ -23,9 +23,9 @@ class MethodChannelSkyflow extends SkyflowPlatform {
     required String env,
     required String authToken,
   }) async {
-    await _methodChannel.invokeMethod('initialize', {
-      'vaultId': vaultId,
-      'vaultUrl': vaultUrl,
+    return await _methodChannel.invokeMethod('initialize', {
+      'vaultID': vaultId,
+      'vaultURL': vaultUrl,
       'tokenProviderURL': tokenProviderURL,
       'env': env,
       'authToken': authToken,
