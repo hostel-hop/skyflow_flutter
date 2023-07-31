@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:flutter/services.dart';
+import 'package:skyflow_platform_interface/src/models/errors.dart';
 import 'package:skyflow_platform_interface/src/models/records.dart';
 import 'package:skyflow_platform_interface/src/skyflow_platform_interface.dart';
 
@@ -34,14 +35,27 @@ class MethodChannelSkyflow extends SkyflowPlatform {
   }
 
   @override
-  Future<void> insert({
-    required SkyflowRecords records,
+  Future<List<T>> insert<T extends SkyflowRecord>({
+    required SkyflowRecords<T> records,
     Map<String, dynamic> options = const {},
+    required T Function(Map<String, dynamic>) recordFromJson,
   }) async {
-    return await _methodChannel.invokeMethod('insert', {
+    final result =
+        await _methodChannel.invokeMethod<Map<String, dynamic>>('insert', {
       'records': records.toJson(),
       'options': options,
     });
+
+    if (result == null) {
+      throw const SkyflowError(
+        message: 'Error inserting records',
+        code: 'insert_error',
+      );
+    }
+
+    return (result['records'] as List<Map<String, dynamic>>)
+        .map((e) => recordFromJson(e))
+        .toList();
   }
 
   void _init() {}

@@ -33,8 +33,9 @@ abstract class SkyflowPlatform extends PlatformInterface {
     required String authToken,
   });
 
-  Future<void> insert({
-    required SkyflowRecords records,
+  Future<List<T>> insert<T extends SkyflowRecord>({
+    required SkyflowRecords<T> records,
     Map<String, dynamic> options = const {},
+    required T Function(Map<String, dynamic>) recordFromJson,
   });
 }

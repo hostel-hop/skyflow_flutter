@@ -100,10 +100,11 @@ class SkyflowPlugin: NSObject, FlutterPlugin {
                                              details: nil))
             }
 
-            var insertOptions = Skyflow.InsertOptions();
+           var insertOptions = Skyflow.InsertOptions();
             if(params["options"] != nil) {
-                let upsertOptions = (params["options"] as! [String : Any])["upsert"] as! [[String : Any]]
-                insertOptions = Skyflow.InsertOptions(tokens: (params["options"] as! [String : Any])["tokens"] as! Bool, upsert: upsertOptions)
+                var upsertOptions: [[String : Any]]?
+                upsertOptions = (params["options"] as! [String : Any])["upsert"] as? [[String : Any]]
+                insertOptions = Skyflow.InsertOptions(tokens: (params["options"] as! [String : Any])["tokens"] as? Bool ?? true, upsert: upsertOptions)
             }
 
           
