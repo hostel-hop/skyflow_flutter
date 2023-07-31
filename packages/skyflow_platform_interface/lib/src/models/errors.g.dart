@@ -54,7 +54,7 @@ Map<String, dynamic> _$$_LocalizedErrorMessageToJson(
     };
 
 const _$FailureCodeEnumMap = {
-  FailureCode.Failed: 'Failed',
-  FailureCode.Canceled: 'Canceled',
-  FailureCode.Timeout: 'Timeout',
+  FailureCode.failed: 'failed',
+  FailureCode.canceled: 'canceled',
+  FailureCode.timeout: 'timeout',
 };

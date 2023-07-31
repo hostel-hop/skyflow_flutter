@@ -30,8 +30,8 @@ class SkyflowPlugin: NSObject, FlutterPlugin {
         switch call.method {
         case "initialize":
             return initialize(call, result: result)
-        case "collect":
-            return collect(call, result: result)
+        case "insert":
+            return insert(call, result: result)
         default:
             result(FlutterMethodNotImplemented)
         }
@@ -85,17 +85,33 @@ class SkyflowPlugin: NSObject, FlutterPlugin {
             return result(true)
         }
 
-          func collect(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
+          func insert(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
+
             guard let params = call.arguments as? NSDictionary else {
                 return result(FlutterError.init(code: "BAD_ARGS",
                                             message: "Invalid arguments",
                                              details: nil))
             }
               
+
+            guard params["records"] != nil else {
+                return result(FlutterError.init(code: "BAD_ARGS",
+                                            message: "Invalid arguments",
+                                             details: nil))
+            }
+
+            var insertOptions = Skyflow.InsertOptions();
+            if(params["options"] != nil) {
+                let upsertOptions = (params["options"] as! [String : Any])["upsert"] as! [[String : Any]]
+                insertOptions = Skyflow.InsertOptions(tokens: (params["options"] as! [String : Any])["tokens"] as! Bool, upsert: upsertOptions)
+            }
+
+          
             let insertCallback = DemoCallback(result)
               
             skyflow!.insert(
                 records: params["records"] as! [String: Any],
+                options: insertOptions,
                 callback: insertCallback
             )
         }

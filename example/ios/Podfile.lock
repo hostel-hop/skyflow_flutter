@@ -1,0 +1,39 @@
+PODS:
+  - AEXML (4.6.1)
+  - Flutter (1.0.0)
+  - integration_test (0.0.1):
+    - Flutter
+  - Skyflow (1.19.0):
+    - AEXML
+  - skyflow_ios (0.0.2):
+    - Flutter
+    - Skyflow (= 1.19.0)
+
+DEPENDENCIES:
+  - Flutter (from `Flutter`)
+  - integration_test (from `.symlinks/plugins/integration_test/ios`)
+  - skyflow_ios (from `.symlinks/plugins/skyflow_ios/ios`)
+
+SPEC REPOS:
+  trunk:
+    - AEXML
+    - Skyflow
+
+EXTERNAL SOURCES:
+  Flutter:
+    :path: Flutter
+  integration_test:
+    :path: ".symlinks/plugins/integration_test/ios"
+  skyflow_ios:
+    :path: ".symlinks/plugins/skyflow_ios/ios"
+
+SPEC CHECKSUMS:
+  AEXML: 1e255ecc6597212f97a7454a69ebd3ede64ac1cf
+  Flutter: f04841e97a9d0b0a8025694d0796dd46242b2854
+  integration_test: 13825b8a9334a850581300559b8839134b124670
+  Skyflow: 80dda3cb9d5e00d9dfc03df7665b2bec30860c54
+  skyflow_ios: f22695629993e56bb920e3a4e72b1cdc37c32833
+
+PODFILE CHECKSUM: a57f30d18f102dd3ce366b1d62a55ecbef2158e5
+
+COCOAPODS: 1.12.1

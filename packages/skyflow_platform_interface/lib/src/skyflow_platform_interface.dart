@@ -1,4 +1,5 @@
 import 'package:plugin_platform_interface/plugin_platform_interface.dart';
+import 'package:skyflow_platform_interface/src/models/records.dart';
 
 import 'method_channel_skyflow.dart';
 
@@ -30,5 +31,10 @@ abstract class SkyflowPlatform extends PlatformInterface {
     required String tokenProviderURL,
     required String env,
     required String authToken,
+  });
+
+  Future<void> insert({
+    required SkyflowRecords records,
+    Map<String, dynamic> options = const {},
   });
 }

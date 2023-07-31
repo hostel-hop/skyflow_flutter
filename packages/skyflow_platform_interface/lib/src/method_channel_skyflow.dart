@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:flutter/services.dart';
+import 'package:skyflow_platform_interface/src/models/records.dart';
 import 'package:skyflow_platform_interface/src/skyflow_platform_interface.dart';
 
 /// An implementation of [SkyflowPlatform] that uses method channels.
@@ -29,6 +30,17 @@ class MethodChannelSkyflow extends SkyflowPlatform {
       'tokenProviderURL': tokenProviderURL,
       'env': env,
       'authToken': authToken,
+    });
+  }
+
+  @override
+  Future<void> insert({
+    required SkyflowRecords records,
+    Map<String, dynamic> options = const {},
+  }) async {
+    return await _methodChannel.invokeMethod('insert', {
+      'records': records.toJson(),
+      'options': options,
     });
   }
 
