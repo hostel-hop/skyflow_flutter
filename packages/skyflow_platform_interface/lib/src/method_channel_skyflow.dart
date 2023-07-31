@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter/services.dart';
@@ -40,8 +41,7 @@ class MethodChannelSkyflow extends SkyflowPlatform {
     Map<String, dynamic> options = const {},
     required T Function(Map<String, dynamic>) recordFromJson,
   }) async {
-    final result =
-        await _methodChannel.invokeMethod<Map<String, dynamic>>('insert', {
+    final result = await _methodChannel.invokeMethod<String>('insert', {
       'records': records.toJson(),
       'options': options,
     });
@@ -53,7 +53,9 @@ class MethodChannelSkyflow extends SkyflowPlatform {
       );
     }
 
-    return (result['records'] as List<Map<String, dynamic>>)
+    final json = jsonDecode(result);
+
+    return (json['records'] as List<Map<String, dynamic>>)
         .map((e) => recordFromJson(e))
         .toList();
   }

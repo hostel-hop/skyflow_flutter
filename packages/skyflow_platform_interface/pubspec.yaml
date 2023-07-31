@@ -1,6 +1,6 @@
 name: skyflow_platform_interface
 description: Platform interface for skyflow sdk
-version: 9.2.9
+version: 9.3.0
 repository: https://github.com/hostel-hop/skyflow_flutter
 homepage: https://github.com/hostel-hop/skyflow_flutter
 
