@@ -18,14 +18,14 @@ class Skyflow {
     required String vaultUrl,
     required String tokenProviderURL,
     required String env,
-    required String authToken,
+    Map<String, dynamic> headers = const {},
   }) async {
     await _platform.initialise(
       vaultId: vaultId,
       vaultUrl: vaultUrl,
       tokenProviderURL: tokenProviderURL,
       env: env,
-      authToken: authToken,
+      headers: headers,
     );
   }
 

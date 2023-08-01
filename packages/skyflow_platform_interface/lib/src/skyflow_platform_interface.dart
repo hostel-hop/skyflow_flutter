@@ -30,7 +30,7 @@ abstract class SkyflowPlatform extends PlatformInterface {
     required String vaultUrl,
     required String tokenProviderURL,
     required String env,
-    required String authToken,
+    Map<String, dynamic> headers = const {},
   });
 
   Future<List<T>> insert<T extends SkyflowRecord>({

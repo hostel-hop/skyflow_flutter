@@ -24,14 +24,14 @@ class MethodChannelSkyflow extends SkyflowPlatform {
     required String vaultUrl,
     required String tokenProviderURL,
     required String env,
-    required String authToken,
+    Map<String, dynamic> headers = const {},
   }) async {
     return await _methodChannel.invokeMethod('initialize', {
       'vaultID': vaultId,
       'vaultURL': vaultUrl,
       'tokenProviderURL': tokenProviderURL,
       'env': env,
-      'authToken': authToken,
+      'headers': headers,
     });
   }
 

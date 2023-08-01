@@ -66,8 +66,8 @@ class SkyflowPlugin: NSObject, FlutterPlugin {
             
 
             let demoTokenProvider = DemoTokenProvider(
-                tokenEndpoint: params["tokenProviderURL"] as! String, 
-                authToken: params["authToken"] as! String
+                    tokenEndpoint: params["tokenProviderURL"] as! String, 
+                    headers: params["headers"] as! [String: String]
                 ) 
  
             let config = Skyflow.Configuration(

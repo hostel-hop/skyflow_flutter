@@ -3,7 +3,7 @@ import Skyflow
 
 class DemoTokenProvider: TokenProvider {
     private var tokenEndpoint: String
-    private var authToken: String
+    private var headers: [String: String] = [:]
 
 
     init(tokenEndpoint: String, authToken: String) {
@@ -17,7 +17,10 @@ class DemoTokenProvider: TokenProvider {
             var request = URLRequest(url: url)
 
             request.httpMethod = "GET"
-            request.setValue(authToken, forHTTPHeaderField: "x-auth-token")
+            
+            for (key, value) in headers {
+                request.setValue(value, forHTTPHeaderField: key)
+            }
 
             let task = session.dataTask(with: request){ data, response, error in
                 if(error != nil){
