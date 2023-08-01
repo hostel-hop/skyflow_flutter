@@ -325,7 +325,7 @@ packages:
       path: "../packages/skyflow_ios"
       relative: true
     source: path
-    version: "0.0.3"
+    version: "0.0.6"
   source_map_stack_trace:
     dependency: transitive
     description:

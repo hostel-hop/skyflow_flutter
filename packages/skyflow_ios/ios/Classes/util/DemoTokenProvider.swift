@@ -6,9 +6,9 @@ class DemoTokenProvider: TokenProvider {
     private var headers: [String: String] = [:]
 
 
-    init(tokenEndpoint: String, authToken: String) {
+    init(tokenEndpoint: String, headers: [String: String]) {
         self.tokenEndpoint = tokenEndpoint
-        self.authToken = authToken
+        self.headers = headers
     }
 
     public func getBearerToken(_ apiCallback: Callback) {
@@ -17,7 +17,7 @@ class DemoTokenProvider: TokenProvider {
             var request = URLRequest(url: url)
 
             request.httpMethod = "GET"
-            
+
             for (key, value) in headers {
                 request.setValue(value, forHTTPHeaderField: key)
             }
