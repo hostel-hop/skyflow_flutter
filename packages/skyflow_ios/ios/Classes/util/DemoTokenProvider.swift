@@ -29,10 +29,13 @@ class DemoTokenProvider: TokenProvider {
                 }
                 if let safeData = data {
                     do {
-                        let x = try JSONSerialization.jsonObject(with: safeData, options:[]) as? [String: String]
-                        if let accessToken = x?["accessToken"] {
-                            apiCallback.onSuccess(accessToken)
-                        }
+                        let x = try JSONSerialization.jsonObject(with: safeData, options:[])
+                        
+                        let tokenData = (x as! [String: Any])["data"]
+                        let accessToken = (tokenData as! [String: String])["accessToken"]
+                        
+                        apiCallback.onSuccess(accessToken)
+
                     }
                     catch {
                         apiCallback.onFailure(error)

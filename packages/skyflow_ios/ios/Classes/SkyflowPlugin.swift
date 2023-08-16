@@ -32,6 +32,8 @@ class SkyflowPlugin: NSObject, FlutterPlugin {
             return initialize(call, result: result)
         case "insert":
             return insert(call, result: result)
+        case "detokenize":
+            return detokenize(call, result: result)
         default:
             result(FlutterMethodNotImplemented)
         }
@@ -116,5 +118,25 @@ class SkyflowPlugin: NSObject, FlutterPlugin {
                 callback: insertCallback
             )
         }
+
+    func detokenize(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
+
+          guard let params = call.arguments as? NSDictionary else {
+              return result(FlutterError.init(code: "BAD_ARGS",
+                                          message: "Invalid arguments",
+                                           details: nil))
+          }
+            
+          guard params["records"] != nil else {
+              return result(FlutterError.init(code: "BAD_ARGS",
+                                          message: "Invalid arguments",
+                                           details: nil))
+          }
+        
+          let revealCallback = DemoCallback(result)
+            
+          skyflow!.detokenize(records: params["records"] as! [String: Any], callback: revealCallback)
+          
+      }
     }
 

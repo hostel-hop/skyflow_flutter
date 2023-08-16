@@ -1,6 +1,6 @@
 name: skyflow_ios
 description: Skyflow Ios client
-version: 0.0.8
+version: 0.1.0
 homepage: 'https://www.skyflow.com/'
 
 environment:

@@ -29,15 +29,23 @@ class Skyflow {
     );
   }
 
-  Future<List<T>> insert<T extends SkyflowRecord>({
+  Future<List> insert<T extends SkyflowRecord>({
     required SkyflowRecords<T> records,
     Map<String, dynamic> options = const {},
-    required T Function(Map<String, dynamic>) recordFromJson,
   }) async {
     return await _platform.insert(
       records: records,
       options: options,
-      recordFromJson: recordFromJson,
+    );
+  }
+
+  Future<List<SkyflowTokenValue>> detokenize({
+    required SkyflowTokens tokens,
+    Map<String, dynamic> options = const {},
+  }) async {
+    return await _platform.detokenize(
+      tokens: tokens,
+      options: options,
     );
   }
 
