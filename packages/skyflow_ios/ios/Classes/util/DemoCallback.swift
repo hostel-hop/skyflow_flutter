@@ -14,6 +14,6 @@ class DemoCallback: Callback {
     }
     
     func onFailure(_ errorResult: Any) {
-        self.resultCallback(errorResult)
+        self.resultCallback(["records": errorResult!["records"]])
     }
 }
