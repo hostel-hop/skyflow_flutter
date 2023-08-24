@@ -13,7 +13,8 @@ class DemoCallback: Callback {
         self.resultCallback(responseBody)
     }
     
-    func onFailure(_ errorResult: Any) {
-        self.resultCallback(["records": errorResult!["records"]])
+    func onFailure(_ error: Any) {
+        let errorResult = error as? [String: Any]
+        self.resultCallback(["records": errorResult?["records"] ?? []])
     }
 }
