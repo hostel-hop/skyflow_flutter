@@ -57,7 +57,7 @@ class MethodChannelSkyflow extends SkyflowPlatform {
   }
 
   @override
-  Future<List<SkyflowTokenValue>> detokenize({
+  Future<Map<String, dynamic>> detokenize({
     required SkyflowTokens tokens,
     Map<String, dynamic> options = const {},
   }) async {
@@ -74,9 +74,7 @@ class MethodChannelSkyflow extends SkyflowPlatform {
       );
     }
 
-    return (result['records'] as List)
-        .map((e) => SkyflowTokenValue.fromJson(e as Map<String, dynamic>))
-        .toList();
+    return result;
   }
 
   void _init() {}

@@ -13,7 +13,7 @@ class DemoCallback: Callback {
         self.resultCallback(responseBody)
     }
     
-    func onFailure(_ error: Any) {
-        self.resultCallback("")
+    func onFailure(_ errorResult: Any) {
+        self.resultCallback(errorResult)
     }
 }

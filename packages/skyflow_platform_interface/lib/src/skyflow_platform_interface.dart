@@ -39,7 +39,7 @@ abstract class SkyflowPlatform extends PlatformInterface {
     Map<String, dynamic> options = const {},
   });
 
-  Future<List<SkyflowTokenValue>> detokenize({
+  Future<Map<String,dynamic>> detokenize({
     required SkyflowTokens tokens,
     Map<String, dynamic> options = const {},
   });
