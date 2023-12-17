@@ -2,7 +2,6 @@ package com.flutter.skyflow
 
 import androidx.annotation.NonNull
 import Skyflow.*
-import io.flutter.embedding.android.FlutterFragmentActivity
 import io.flutter.embedding.engine.plugins.FlutterPlugin
 import io.flutter.embedding.engine.plugins.activity.ActivityAware
 import io.flutter.embedding.engine.plugins.activity.ActivityPluginBinding
@@ -15,7 +14,6 @@ import okhttp3.Headers.Companion.toHeaders
 import org.json.JSONObject
 import okhttp3.OkHttpClient
 import java.io.IOException
-import com.facebook.react.bridge.ReadableMap
 
 
 /** SkyflowAndroidPlugin */
@@ -46,13 +44,21 @@ ${initializationError ?: "Skyflow SDK did not initialize."}""",
         }
         when (call.method) {
             "initialize" -> {
-                val tokenProviderURL = call.requiredArgument<String>("tokenProviderURL")
-                val headers = call.requiredArgument<Map<String, String>>("headers")
-                val vaultID = call.requiredArgument<String>("vaultID")
-                val vaultURL = call.requiredArgument<String>("vaultURL")
-                val env = call.requiredArgument<String>("env")
+                val arguments = call.arguments as Map<String,Any>
+                val tokenProviderURL = arguments["tokenProviderURL"] as String
+                val headers = arguments["headers"] as Map<String, String>
+                val vaultID = arguments["vaultID"] as String
+                val vaultURL = arguments["vaultURL"]  as String
+                val env = arguments["env"] as String
 
-                return initializeSkyflowClient(tokenProviderURL, headers, vaultID, vaultURL, env, result)
+                return initializeSkyflowClient(
+                    tokenProviderURL,
+                    headers,
+                    vaultID,
+                    vaultURL,
+                    env,
+                    result
+                )
             }
             else -> result.notImplemented()
         }
@@ -110,24 +116,6 @@ ${initializationError ?: "Skyflow SDK did not initialize."}""",
 
 
 }
-
-private inline fun <reified T> MethodCall.optionalArgument(key: String): T? {
-    val value = argument<T>(key)
-    if (value == JSONObject.NULL)
-        return null
-    if (T::class.java == ReadableMap::class.java) {
-        return ReadableMap(argument<JSONObject>(key) ?: JSONObject()) as T
-    }
-    return value
-}
-
-private inline fun <reified T> MethodCall.requiredArgument(key: String): T {
-    if (T::class.java == ReadableMap::class.java) {
-        return ReadableMap(argument<JSONObject>(key) ?: error("Required parameter $key not set")) as T
-    }
-    return argument<T>(key) ?: error("Required parameter $key not set")
-}
-
 
 class FlutterTokenProvider: Skyflow.TokenProvider {
     private var tokenEndpoint: String
