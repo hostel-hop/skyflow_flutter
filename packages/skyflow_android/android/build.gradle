@@ -2,7 +2,7 @@ group 'com.flutter.skyflow'
 version '1.0-SNAPSHOT'
 
 def githubProperties = new Properties() 
-githubProperties.load(new FileInputStream(file(“github.properties”)))
+githubProperties.load(new FileInputStream(rootProject.file("github.properties")))
 
 buildscript {
     ext.kotlin_version = '1.8.0'

@@ -1,6 +1,6 @@
 name: skyflow_flutter
 description: Flutter library for Skyflow. Supports PaymentSheets, Apple & Google Pay, SCA, PSD2 and much more.
-version: 0.3.7
+version: 0.3.8
 homepage: https://github.com/hostel-hop/skyflow_flutter
 repository: https://github.com/hostel-hop/skyflow_flutter
 
@@ -11,6 +11,8 @@ environment:
 flutter:
   plugin:
     platforms:
+      android:
+        default_package: skyflow_android
       ios:
         default_package: skyflow_ios
 
@@ -19,8 +21,10 @@ dependencies:
     sdk: flutter
   meta: ^1.8.0
   skyflow_ios: ^0.1.3
+  skyflow_android: ^0.1.0
   skyflow_platform_interface: ^9.4.2
 dev_dependencies:
   flutter_test:
     sdk: flutter
   flutter_lints: ^2.0.1
+  pubspec_dependency_sorter: ^1.0.4
