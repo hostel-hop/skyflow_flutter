@@ -62,4 +62,5 @@ dependencies {
     implementation 'com.skyflowapi.android:skyflow-android-sdk:1.21.0'
     implementation 'com.squareup.okhttp3:okhttp:4.9.0'
     implementation "androidx.annotation:annotation:1.0.0"
+    implementation "com.facebook.react:react-native:+" 
 }

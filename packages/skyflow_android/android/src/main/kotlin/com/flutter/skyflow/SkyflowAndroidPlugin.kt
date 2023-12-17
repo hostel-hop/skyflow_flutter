@@ -16,10 +16,11 @@ import okhttp3.Headers.Companion.toHeaders
 import org.json.JSONObject
 import okhttp3.OkHttpClient
 import java.io.IOException
+import com.facebook.react.bridge.ReadableMap
 
 
-/** StripeAndroidPlugin */
-class StripeAndroidPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
+/** SkyflowAndroidPlugin */
+class SkyflowAndroidPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
     /// The MethodChannel that will the communication between Flutter and native Android
     ///
     /// This local reference serves to register the plugin with the Flutter Engine and unregister it
@@ -30,8 +31,6 @@ class StripeAndroidPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
     private var skyflowClient: Client? = null
 
     override fun onAttachedToEngine(@NonNull flutterPluginBinding: FlutterPlugin.FlutterPluginBinding) {
-        DisplayMetricsHolder.initDisplayMetricsIfNotInitialized(flutterPluginBinding.applicationContext)
-
         channel = MethodChannel(flutterPluginBinding.binaryMessenger, "flutter.skyflow", JSONMethodCodec.INSTANCE)
         channel.setMethodCallHandler(this)
     }
@@ -52,11 +51,16 @@ ${initializationError ?: "Skyflow SDK did not initialize."}""",
                 val headers = call.requiredArgument<Map<String, String>>("headers")
                 val vaultID = call.requiredArgument<String>("vaultID")
                 val vaultURL = call.requiredArgument<String>("vaultURL")
-                val env = call.requiredArgument<String>("env") 
-                initializeSkyflowClient(tokenProviderURL, headers, vaultID, vaultURL, env)
+                val env = call.requiredArgument<String>("env")
+
+                return initializeSkyflowClient(tokenProviderURL, headers, vaultID, vaultURL, env)
             }
             else -> result.notImplemented()
         }
+    }
+
+    override fun onAttachedToActivity(binding: ActivityPluginBinding){
+
     }
 
 
@@ -79,6 +83,7 @@ ${initializationError ?: "Skyflow SDK did not initialize."}""",
         vaultID: String,
         vaultURL: String,
         env: String,
+        @NonNull result: Result
     ) {
         try {
             var flutterTokenProvider = FlutterTokenProvider(
