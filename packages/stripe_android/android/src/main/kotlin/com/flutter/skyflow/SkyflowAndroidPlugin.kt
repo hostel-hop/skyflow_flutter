@@ -1,15 +1,11 @@
-package com.flutter.stripe
+package com.flutter.skyflow
 
 import android.annotation.SuppressLint
 import androidx.annotation.NonNull
-import com.facebook.react.bridge.Promise
-import com.facebook.react.bridge.ReactApplicationContext
-import com.facebook.react.bridge.ReadableMap
-import com.facebook.react.uimanager.DisplayMetricsHolder
-import com.facebook.react.uimanager.ThemedReactContext
-import com.google.android.material.internal.ThemeEnforcement
-import com.reactnativestripesdk.*
-import com.reactnativestripesdk.pushprovisioning.AddToWalletButtonManager
+import Skyflow.*
+import Skyflow.LogLevel
+import Skyflow.Options
+import Skyflow.utils.EventName
 import io.flutter.embedding.android.FlutterFragmentActivity
 import io.flutter.embedding.engine.plugins.FlutterPlugin
 import io.flutter.embedding.engine.plugins.activity.ActivityAware
@@ -20,6 +16,7 @@ import io.flutter.plugin.common.MethodChannel
 import io.flutter.plugin.common.MethodChannel.MethodCallHandler
 import io.flutter.plugin.common.MethodChannel.Result
 import org.json.JSONObject
+import okhttp3.OkHttpClient
 
 
 /** StripeAndroidPlugin */
@@ -31,235 +28,32 @@ class StripeAndroidPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
     private lateinit var channel: MethodChannel
     private var initializationError: String? = null
 
-    lateinit var stripeSdk: StripeSdkModule
-
-    private val stripeSdkCardViewManager: CardFieldViewManager by lazy {
-        CardFieldViewManager()
-    }
-
-    private val cardFormViewManager: CardFormViewManager by lazy {
-        CardFormViewManager()
-    }
-
-    private val payButtonViewManager: GooglePayButtonManager by lazy {
-        GooglePayButtonManager()
-    }
-
-    private val aubecsDebitManager: AuBECSDebitFormViewManager by lazy {
-        AuBECSDebitFormViewManager()
-    }
-
+    private var skyflowClient: Skyflow?
     override fun onAttachedToEngine(@NonNull flutterPluginBinding: FlutterPlugin.FlutterPluginBinding) {
         DisplayMetricsHolder.initDisplayMetricsIfNotInitialized(flutterPluginBinding.applicationContext)
 
-        channel = MethodChannel(flutterPluginBinding.binaryMessenger, "flutter.stripe/payments", JSONMethodCodec.INSTANCE)
+        channel = MethodChannel(flutterPluginBinding.binaryMessenger, "flutter.skyflow", JSONMethodCodec.INSTANCE)
         channel.setMethodCallHandler(this)
-        flutterPluginBinding
-                .platformViewRegistry
-                .registerViewFactory("flutter.stripe/card_field", StripeSdkCardPlatformViewFactory(flutterPluginBinding, stripeSdkCardViewManager) { stripeSdk })
-        flutterPluginBinding
-                .platformViewRegistry
-                .registerViewFactory("flutter.stripe/card_form_field", StripeSdkCardFormPlatformViewFactory(flutterPluginBinding, cardFormViewManager) { stripeSdk })
-        flutterPluginBinding
-                .platformViewRegistry
-                .registerViewFactory("flutter.stripe/google_pay_button", StripeSdkGooglePayButtonPlatformViewFactory(flutterPluginBinding, payButtonViewManager) { stripeSdk })
-        flutterPluginBinding
-            .platformViewRegistry
-            .registerViewFactory("flutter.stripe/aubecs_form_field", StripeAubecsDebitPlatformViewFactory(flutterPluginBinding, aubecsDebitManager){stripeSdk})
-        flutterPluginBinding
-            .platformViewRegistry
-            .registerViewFactory("flutter.stripe/add_to_wallet", StripeAddToWalletPlatformViewFactory(flutterPluginBinding, AddToWalletButtonManager(flutterPluginBinding.applicationContext)){stripeSdk})
     }
 
     override fun onMethodCall(@NonNull call: MethodCall, @NonNull result: Result) {
-        if (initializationError != null || !this::stripeSdk.isInitialized) {
+        if (initializationError != null || this::skyflowClient == null) {
             result.error(
-                "flutter_stripe initialization failed",
+                "flutter_skyflow initialization failed",
                 """The plugin failed to initialize:
-${initializationError ?: "Stripe SDK did not initialize."}
-Please make sure you follow all the steps detailed inside the README: https://github.com/flutter-stripe/flutter_stripe#android
-If you continue to have trouble, follow this discussion to get some support https://github.com/flutter-stripe/flutter_stripe/discussions/538""",
+${initializationError ?: "Skyflow SDK did not initialize."}""",
                 null
             )
             return
         }
         when (call.method) {
-            "initialise" -> {
-                stripeSdk.initialise(
-                    params = ReadableMap(call.arguments as JSONObject),
-                    promise = Promise(result),
-                )
-            }
-            "createPaymentMethod" -> stripeSdk.createPaymentMethod(
-                data = call.requiredArgument("data"),
-                options = call.requiredArgument("options"),
-                promise = Promise(result)
-            )
-            "createTokenForCVCUpdate" -> stripeSdk.createTokenForCVCUpdate(
-                cvc = call.requiredArgument("cvc"),
-                promise = Promise(result)
-            )
-            "confirmSetupIntent" -> stripeSdk.confirmSetupIntent(
-                setupIntentClientSecret = call.requiredArgument("setupIntentClientSecret"),
-                params = call.requiredArgument("params"),
-                options = call.requiredArgument("options"),
-                promise = Promise(result)
-            )
-            "handleNextAction" -> stripeSdk.handleNextAction(
-                paymentIntentClientSecret = call.requiredArgument("paymentIntentClientSecret"),
-                promise = Promise(result)
-            )
-            "handleNextActionForSetup" -> stripeSdk.handleNextActionForSetup(
-                setupIntentClientSecret = call.requiredArgument("setupIntentClientSecret"),
-                promise = Promise(result)
-            )
-
-            "confirmPayment" -> stripeSdk.confirmPayment(
-                paymentIntentClientSecret = call.requiredArgument("paymentIntentClientSecret"),
-                params = call.optionalArgument("params"),
-                options = call.requiredArgument("options"),
-                promise = Promise(result)
-            )
-            "retrievePaymentIntent" -> stripeSdk.retrievePaymentIntent(
-                clientSecret = call.requiredArgument("clientSecret"),
-                promise = Promise(result)
-            )
-            "retrieveSetupIntent" -> stripeSdk.retrieveSetupIntent(
-                    clientSecret = call.requiredArgument("clientSecret"),
-                    promise = Promise(result)
-            )
-            "initPaymentSheet" -> stripeSdk.initPaymentSheet(
-                params = call.requiredArgument("params"),
-                promise = Promise(result)
-            )
-            "presentPaymentSheet" -> stripeSdk.presentPaymentSheet(
-                options = call.requiredArgument("options"),
-                promise = Promise(result)
-            )
-            "confirmPaymentSheetPayment" -> stripeSdk.confirmPaymentSheetPayment(
-                promise = Promise(result)
-            )
-            "createToken" -> stripeSdk.createToken(
-                promise = Promise(result),
-                params = call.requiredArgument("params")
-            )
-            "dangerouslyUpdateCardDetails" -> {
-                stripeSdkCardViewManager.setCardDetails(
-                    value = call.requiredArgument("params"),
-                    reactContext = ThemedReactContext(stripeSdk.reactContext, channel) { stripeSdk }
-                )
-                result.success(null)
-            }
-            "collectBankAccount" -> stripeSdk.collectBankAccount(
-                isPaymentIntent = call.requiredArgument("isPaymentIntent"),
-                clientSecret = call.requiredArgument("clientSecret"),
-                params = call.requiredArgument("params"),
-                promise = Promise(result)
-            )
-            "verifyMicrodeposits" -> stripeSdk.verifyMicrodeposits(
-                isPaymentIntent = call.requiredArgument("isPaymentIntent"),
-                clientSecret = call.requiredArgument("clientSecret"),
-                params = call.requiredArgument("params"),
-                promise = Promise(result)
-            )
-            "isCardInWallet" -> stripeSdk.isCardInWallet(
-                params = call.requiredArgument("params"),
-                promise = Promise(result)
-            )
-            "canAddCardToWallet" -> stripeSdk.canAddCardToWallet(
-                params = call.requiredArgument("params"),
-                promise = Promise(result)
-            )
-            "collectBankAccountToken" -> stripeSdk.collectBankAccountToken(
-                clientSecret = call.requiredArgument("clientSecret"),
-                promise = Promise(result)
-            )
-            "collectFinancialConnectionsAccounts" -> stripeSdk.collectFinancialConnectionsAccounts(
-                clientSecret = call.requiredArgument("clientSecret"),
-                promise = Promise(result)
-            )
-            "resetPaymentSheetCustomer" -> stripeSdk.resetPaymentSheetCustomer(
-                promise = Promise(result)
-            )
-            "intentCreationCallback" -> stripeSdk.intentCreationCallback(
-                params = call.requiredArgument("params"),
-                promise = Promise(result)
-            )
-            "createPlatformPayPaymentMethod" -> stripeSdk.createPlatformPayPaymentMethod(
-                params = call.requiredArgument("params"),
-                usesDeprecatedTokenFlow = call.requiredArgument("usesDeprecatedTokenFlow"),
-                promise = Promise(result)
-            )
-            "isPlatformPaySupported" -> stripeSdk.isPlatformPaySupported(
-                params = call.optionalArgument("params"),
-                promise = Promise(result)
-            )
-            "confirmPlatformPay" -> stripeSdk.confirmPlatformPay(
-                clientSecret = call.requiredArgument("clientSecret"),
-                params = call.requiredArgument("params"),
-                isPaymentIntent = call.requiredArgument("isPaymentIntent"),
-                promise = Promise(result)
-            )
-            "addListener" -> {
-                stripeSdk.addListener(eventName = call.requiredArgument("eventName"))
-                result.success("OK")
-            }
-            "removeListener" -> {
-                stripeSdk.removeListeners(count = call.requiredArgument("count"))
-                result.success("OK")
-            }
-            "initCustomerSheet" -> {
-                stripeSdk.initCustomerSheet(
-                    params = call.requiredArgument("params"),
-                    customerAdapterOverrides = call.requiredArgument("customerAdapterOverrides"),
-                    promise = Promise(result)
-                )
-            }
-            "presentCustomerSheet" -> {
-                stripeSdk.presentCustomerSheet(
-                    params = call.requiredArgument("params"),
-                    promise = Promise(result)
-                )
-            }
-            "retrieveCustomerSheetPaymentOptionSelection" -> {
-                stripeSdk.retrieveCustomerSheetPaymentOptionSelection(
-                    promise = Promise(result)
-                )
-            }
-            "customerAdapterFetchPaymentMethodsCallback" -> {
-                stripeSdk.customerAdapterFetchPaymentMethodsCallback(
-                    paymentMethodJsonObjects = call.requiredArgument("paymentMethodJsonObjects"),
-                    promise = Promise(result)
-                )
-            }
-            "customerAdapterAttachPaymentMethodCallback" -> {
-                stripeSdk.customerAdapterAttachPaymentMethodCallback(
-                    paymentMethodJson = call.requiredArgument("paymentMethodJson"),
-                    promise = Promise(result)
-                )
-            }
-            "customerAdapterDetachPaymentMethodCallback" -> {
-                stripeSdk.customerAdapterDetachPaymentMethodCallback(
-                    paymentMethodJson = call.requiredArgument("paymentMethodJson"),
-                    promise = Promise(result)
-                )
-            }
-            "customerAdapterSetSelectedPaymentOptionCallback" -> {
-                stripeSdk.customerAdapterSetSelectedPaymentOptionCallback(
-                    promise = Promise(result)
-                )
-            }
-            "customerAdapterFetchSelectedPaymentOptionCallback" -> {
-                stripeSdk.customerAdapterFetchSelectedPaymentOptionCallback(
-                    paymentOption = call.optionalArgument("paymentOption"),
-                    promise = Promise(result)
-                )
-            }
-            "customerAdapterSetupIntentClientSecretForCustomerAttachCallback" -> {
-                stripeSdk.customerAdapterSetupIntentClientSecretForCustomerAttachCallback(
-                    clientSecret = call.requiredArgument("clientSecret"),
-                    promise = Promise(result)
-                )
+            "initialize" -> {
+                val tokenProviderURL = call.requiredArgument<String>("tokenProviderURL")
+                val headers = call.requiredArgument<Map<String, String>>("headers")
+                val vaultID = call.requiredArgument<String>("vaultID")
+                val vaultURL = call.requiredArgument<String>("vaultURL")
+                val env = call.requiredArgument<String>("env") 
+                initializeSkyflowClient(tokenProviderURL, headers, vaultID, vaultURL, options, env)
             }
             else -> result.notImplemented()
         }
@@ -270,24 +64,6 @@ If you continue to have trouble, follow this discussion to get some support http
         channel.setMethodCallHandler(null)
     }
 
-    @SuppressLint("RestrictedApi")
-    override fun onAttachedToActivity(binding: ActivityPluginBinding) {
-        when {
-            binding.activity !is FlutterFragmentActivity -> {
-                initializationError =
-                    "Your Main Activity ${binding.activity.javaClass} is not a subclass FlutterFragmentActivity."
-            }
-            !ThemeEnforcement.isAppCompatTheme(binding.activity) -> {
-                initializationError =
-                    "Your theme isn't set to use Theme.AppCompat or Theme.MaterialComponents."
-            }
-            else -> {
-                val context = ReactApplicationContext(binding, channel) { stripeSdk }
-                stripeSdk = StripeSdkModule(context)
-            }
-        }
-    }
-
     override fun onDetachedFromActivityForConfigChanges() {
     }
 
@@ -296,6 +72,39 @@ If you continue to have trouble, follow this discussion to get some support http
 
     override fun onDetachedFromActivity() {
     }
+
+    fun initializeSkyflowClient(
+        tokenProviderURL: String,
+        headers: Map<String, String>,
+        vaultID: String,
+        vaultURL: String,
+        env: String,
+    ) {
+        try {
+            var demoTokenProvider = FlutterTokenProvider(
+                tokenEndpoint: tokenProviderURL, 
+                headers: headers,
+            ) 
+
+            var config  = Skyflow.Configuration(
+                vaultID: vaultID,
+                vaultURL: vaultURL,
+                tokenProvider: demoTokenProvider,
+                options: Skyflow.Options(
+                    logLevel : Skyflow.LogLevel.ERROR,
+                    env: env == "DEV" ? Skyflow.Env.DEV : Skyflow.Env.PROD,
+                ) 
+            )
+ 
+            skyflowClient = Skyflow.init(config)
+
+            return result.success(true)
+        } catch (e: Exception) {
+            result.error("flutter_skyflow initialization failed", e.message, null)
+        }
+    }
+
+
 }
 
 private inline fun <reified T> MethodCall.optionalArgument(key: String): T? {
@@ -313,4 +122,42 @@ private inline fun <reified T> MethodCall.requiredArgument(key: String): T {
         return ReadableMap(argument<JSONObject>(key) ?: error("Required parameter $key not set")) as T
     }
     return argument<T>(key) ?: error("Required parameter $key not set")
+}
+
+
+class FlutterTokenProvider: Skyflow.TokenProvider {
+    private var tokenEndpoint: String
+    private var headers: Map<String, String>
+
+    constructor(tokenEndpoint: String, headers: Map<String, String>) {
+        this.tokenEndpoint = tokenEndpoint
+        this.headers = headers
+    }
+
+    override fun getBearerToken(callback: Callback) {
+        val request = okhttp3.Request.Builder()
+            .url(tokenEndpoint)
+            .headers(Headers.of(headers))
+            .build()
+        val okHttpClient = OkHttpClient()
+        try {
+            val thread = Thread {
+                run {
+                    okHttpClient.newCall(request).execute().use { response ->
+                        if (!response.isSuccessful)
+                            throw IOException("Unexpected code $response")
+                            
+                        val accessTokenObject = JSONObject(response.body()!!.string().toString())
+                
+                        val tokenData = accessTokenObject["data"]
+                        val accessToken = tokenData["accessToken"]
+                        callback.onSuccess("$accessToken")
+                    }
+                }
+            }
+            thread.start()
+        }catch (exception:Exception){
+            callback.onFailure(exception)
+        }
+    }
 }
