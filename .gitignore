@@ -7,7 +7,7 @@
 .env.dart
 build/
 /.idea/
-/stripe_android/android/.gradle/
+/skyflow_android/android/.gradle/
 
 .flutter-plugins
 .flutter-plugins-dependencies

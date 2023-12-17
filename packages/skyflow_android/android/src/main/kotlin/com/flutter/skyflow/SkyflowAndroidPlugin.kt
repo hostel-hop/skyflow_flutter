@@ -3,9 +3,6 @@ package com.flutter.skyflow
 import android.annotation.SuppressLint
 import androidx.annotation.NonNull
 import Skyflow.*
-import Skyflow.LogLevel
-import Skyflow.Options
-import Skyflow.utils.EventName
 import io.flutter.embedding.android.FlutterFragmentActivity
 import io.flutter.embedding.engine.plugins.FlutterPlugin
 import io.flutter.embedding.engine.plugins.activity.ActivityAware
@@ -15,8 +12,10 @@ import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.MethodChannel
 import io.flutter.plugin.common.MethodChannel.MethodCallHandler
 import io.flutter.plugin.common.MethodChannel.Result
+import okhttp3.Headers.Companion.toHeaders
 import org.json.JSONObject
 import okhttp3.OkHttpClient
+import java.io.IOException
 
 
 /** StripeAndroidPlugin */
@@ -28,7 +27,8 @@ class StripeAndroidPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
     private lateinit var channel: MethodChannel
     private var initializationError: String? = null
 
-    private var skyflowClient: Skyflow?
+    private var skyflowClient: Client? = null
+
     override fun onAttachedToEngine(@NonNull flutterPluginBinding: FlutterPlugin.FlutterPluginBinding) {
         DisplayMetricsHolder.initDisplayMetricsIfNotInitialized(flutterPluginBinding.applicationContext)
 
@@ -37,7 +37,7 @@ class StripeAndroidPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
     }
 
     override fun onMethodCall(@NonNull call: MethodCall, @NonNull result: Result) {
-        if (initializationError != null || this::skyflowClient == null) {
+        if (initializationError != null || skyflowClient == null) {
             result.error(
                 "flutter_skyflow initialization failed",
                 """The plugin failed to initialize:
@@ -53,7 +53,7 @@ ${initializationError ?: "Skyflow SDK did not initialize."}""",
                 val vaultID = call.requiredArgument<String>("vaultID")
                 val vaultURL = call.requiredArgument<String>("vaultURL")
                 val env = call.requiredArgument<String>("env") 
-                initializeSkyflowClient(tokenProviderURL, headers, vaultID, vaultURL, options, env)
+                initializeSkyflowClient(tokenProviderURL, headers, vaultID, vaultURL, env)
             }
             else -> result.notImplemented()
         }
@@ -81,22 +81,22 @@ ${initializationError ?: "Skyflow SDK did not initialize."}""",
         env: String,
     ) {
         try {
-            var demoTokenProvider = FlutterTokenProvider(
-                tokenEndpoint: tokenProviderURL, 
-                headers: headers,
+            var flutterTokenProvider = FlutterTokenProvider(
+                tokenProviderURL,
+                headers,
             ) 
 
-            var config  = Skyflow.Configuration(
-                vaultID: vaultID,
-                vaultURL: vaultURL,
-                tokenProvider: demoTokenProvider,
-                options: Skyflow.Options(
-                    logLevel : Skyflow.LogLevel.ERROR,
-                    env: env == "DEV" ? Skyflow.Env.DEV : Skyflow.Env.PROD,
-                ) 
-            )
+            var config  = Configuration(
+                    vaultID,
+                vaultURL,
+                flutterTokenProvider,
+                Skyflow.Options(
+                    Skyflow.LogLevel.ERROR,
+                    if (env == "DEV") Skyflow.Env.DEV else Skyflow.Env.PROD
+                )
+            );
  
-            skyflowClient = Skyflow.init(config)
+            skyflowClient = Skyflow.init(config);
 
             return result.success(true)
         } catch (e: Exception) {
@@ -137,7 +137,7 @@ class FlutterTokenProvider: Skyflow.TokenProvider {
     override fun getBearerToken(callback: Callback) {
         val request = okhttp3.Request.Builder()
             .url(tokenEndpoint)
-            .headers(Headers.of(headers))
+            .headers(headers.toHeaders())
             .build()
         val okHttpClient = OkHttpClient()
         try {
@@ -146,10 +146,12 @@ class FlutterTokenProvider: Skyflow.TokenProvider {
                     okHttpClient.newCall(request).execute().use { response ->
                         if (!response.isSuccessful)
                             throw IOException("Unexpected code $response")
-                            
-                        val accessTokenObject = JSONObject(response.body()!!.string().toString())
-                
-                        val tokenData = accessTokenObject["data"]
+
+                        val responseBody = response.body;
+
+                        val accessTokenObject = JSONObject(responseBody!!.string().toString())
+
+                        val tokenData = accessTokenObject["data"] as Map<String, String>
                         val accessToken = tokenData["accessToken"]
                         callback.onSuccess("$accessToken")
                     }
