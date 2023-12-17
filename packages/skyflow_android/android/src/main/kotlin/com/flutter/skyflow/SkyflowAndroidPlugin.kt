@@ -33,7 +33,7 @@ class SkyflowAndroidPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
     }
 
     override fun onMethodCall(@NonNull call: MethodCall, @NonNull result: Result) {
-        if (initializationError != null || skyflowClient == null) {
+        if (initializationError != null) {
             result.error(
                 "flutter_skyflow initialization failed",
                 """The plugin failed to initialize:
@@ -110,6 +110,7 @@ ${initializationError ?: "Skyflow SDK did not initialize."}""",
 
             return result.success(true)
         } catch (e: Exception) {
+            initializationError = e.message
             result.error("flutter_skyflow initialization failed", e.message, null)
         }
     }
