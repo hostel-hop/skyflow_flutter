@@ -1,0 +1,61 @@
+group 'com.flutter.skyflow'
+version '1.0-SNAPSHOT'
+
+def githubProperties = new Properties() 
+githubProperties.load(new FileInputStream(file(“github.properties”)))
+
+buildscript {
+    ext.kotlin_version = '1.8.0'
+    ext.stripe_version = '20.34.+'
+
+    repositories {
+        google()
+        mavenCentral()
+    }
+
+    dependencies {
+        classpath 'com.android.tools.build:gradle:8.1.3'
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
+    }
+}
+
+rootProject.allprojects {
+    repositories {
+        google()
+        mavenCentral()
+        maven {
+                url "https://maven.pkg.github.com/skyflowapi/skyflow-android-sdk"
+                credentials {
+                username = githubProperties['gpr.usr'] ?: System.getenv("GPR_USER_NAME")
+                password = githubProperties['gpr.key'] ?: System.getenv("GPR_PAT")
+            }
+        }
+    }
+}
+
+apply plugin: 'com.android.library'
+apply plugin: 'kotlin-android'
+
+android {
+    namespace 'com.flutter.skyflow'
+    compileSdk 33
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+
+    kotlinOptions {
+        jvmTarget = '17'
+    }
+
+    sourceSets {
+        main.java.srcDirs += 'src/main/kotlin'
+    }
+    defaultConfig {
+        minSdkVersion 21
+        consumerProguardFiles 'proguard-rules.txt'
+    }
+}
+
+dependencies {}
