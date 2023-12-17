@@ -1,6 +1,5 @@
 package com.flutter.skyflow
 
-import android.annotation.SuppressLint
 import androidx.annotation.NonNull
 import Skyflow.*
 import io.flutter.embedding.android.FlutterFragmentActivity
