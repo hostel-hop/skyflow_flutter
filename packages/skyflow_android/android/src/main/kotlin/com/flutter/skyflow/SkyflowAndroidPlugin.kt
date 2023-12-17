@@ -53,7 +53,7 @@ ${initializationError ?: "Skyflow SDK did not initialize."}""",
                 val vaultURL = call.requiredArgument<String>("vaultURL")
                 val env = call.requiredArgument<String>("env")
 
-                return initializeSkyflowClient(tokenProviderURL, headers, vaultID, vaultURL, env)
+                return initializeSkyflowClient(tokenProviderURL, headers, vaultID, vaultURL, env, result)
             }
             else -> result.notImplemented()
         }

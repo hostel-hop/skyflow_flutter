@@ -11,7 +11,7 @@ build/
 
 .flutter-plugins
 .flutter-plugins-dependencies
-melos_stripe.iml
+melos_skyflow.iml
 
 **/.fvm/
 **/.idea/
