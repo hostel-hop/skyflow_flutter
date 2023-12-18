@@ -1,6 +1,6 @@
 name: skyflow_android
 description: Stripe platform implementation for Android
-version: 0.1.9
+version: 0.2.7
 homepage: 'https://www.skyflow.com/'
 
 environment:
